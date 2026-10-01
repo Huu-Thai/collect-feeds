@@ -1,0 +1,139 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum FeedType {
+  DOMAIN
+  IPV4
+  IPV6
+  URL
+}
+
+enum JobStatus {
+  PENDING
+  RUNNING
+  SUCCESS
+  FAILED
+}
+
+model Feed {
+  id         String    @id @default(uuid())
+  value      String
+  type       FeedType
+  confidence Int?
+  severity   String?
+  tags       String[]
+  isActive   Boolean   @default(true) @map("is_active")
+  expiresAt  DateTime? @map("expires_at")
+  sourceId   String    @map("source_id")
+  source     Source    @relation(fields: [sourceId], references: [id])
+  deletedAt  DateTime? @map("deleted_at")
+  createdAt  DateTime  @default(now()) @map("created_at")
+  updatedAt  DateTime  @updatedAt @map("updated_at")
+
+  @@unique([value, type])
+  @@index([type])
+  @@index([sourceId])
+  @@map("feeds")
+}
+
+model Source {
+  id        String   @id @default(uuid())
+  name      String   @unique
+  type      String
+  params    Json
+  isActive  Boolean  @default(true) @map("is_active")
+  feeds     Feed[]
+  jobs      Job[]
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("sources")
+}
+
+model User {
+  id                  String    @id @default(uuid())
+  email               String    @unique
+  passwordHash        String    @map("password_hash")
+  isActive            Boolean   @default(true) @map("is_active")
+  firstname           String?
+  lastname            String?
+  roleId              String    @map("role_id")
+  role                Role      @relation(fields: [roleId], references: [id])
+  lastLoginAt         DateTime? @map("last_login_at")
+  failedLoginAttempts Int       @default(0) @map("failed_login_attempts")
+  createdJobs         Job[]
+  deletedAt           DateTime? @map("deleted_at")
+  createdAt           DateTime  @default(now()) @map("created_at")
+  updatedAt            DateTime @updatedAt @map("updated_at")
+
+  @@map("users")
+}
+
+model Role {
+  id          String       @id @default(uuid())
+  name        String
+  key         String       @unique
+  users       User[]
+  permissions Permission[]
+  createdAt   DateTime     @default(now()) @map("created_at")
+  updatedAt   DateTime     @updatedAt @map("updated_at")
+
+  @@map("roles")
+}
+
+model Permission {
+  id        String   @id @default(uuid())
+  key       String
+  method    String
+  path      String
+  roleId    String   @map("role_id")
+  role      Role     @relation(fields: [roleId], references: [id])
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("permissions")
+}
+
+model Job {
+  id           String         @id @default(uuid())
+  name         String
+  type         String
+  sourceId     String         @map("source_id")
+  source       Source         @relation(fields: [sourceId], references: [id])
+  schedule     String?
+  isActive     Boolean        @default(true) @map("is_active")
+  lastRunAt    DateTime?      @map("last_run_at")
+  nextRunAt    DateTime?      @map("next_run_at")
+  createdById  String?        @map("created_by")
+  createdBy    User?          @relation(fields: [createdById], references: [id])
+  executions   JobExecution[]
+  createdAt    DateTime       @default(now()) @map("created_at")
+  updatedAt    DateTime       @updatedAt @map("updated_at")
+
+  @@map("jobs")
+}
+
+model JobExecution {
+  id               String    @id @default(uuid())
+  jobId            String    @map("job_id")
+  job              Job       @relation(fields: [jobId], references: [id])
+  status           JobStatus @default(PENDING)
+  startedAt        DateTime? @map("started_at")
+  finishedAt       DateTime? @map("finished_at")
+  recordsProcessed Int       @default(0) @map("records_processed")
+  recordsCreated   Int       @default(0) @map("records_created")
+  recordsUpdated   Int       @default(0) @map("records_updated")
+  recordsFailed    Int       @default(0) @map("records_failed")
+  errorMessage     String?   @map("error_message")
+  triggeredBy      String    @default("scheduled") @map("triggered_by")
+  createdAt        DateTime  @default(now()) @map("created_at")
+  updatedAt        DateTime  @updatedAt @map("updated_at")
+
+  @@map("job_executions")
+}
