@@ -6,7 +6,7 @@ import {
 } from '@nestjs/common';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { Queue } from 'bullmq';
-import { PrismaService } from '../../database/prisma.service';
+import { PrismaService } from '@database/prisma.service';
 import {
   COLLECTION_QUEUE,
   RUN_JOB_NAME,

@@ -1,5 +1,5 @@
-import { BaseEvent } from '../../../common/events/base.event';
-import { FeedType } from '../../../database/generated/prisma/enums';
+import { BaseEvent } from '@common/events/base.event';
+import { FeedType } from '@database/generated/prisma/enums';
 
 export const FEED_EVENTS = {
   CREATED: 'feed.created',

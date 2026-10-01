@@ -1,10 +1,10 @@
 import { CACHE_MANAGER, Cache } from '@nestjs/cache-manager';
 import { Inject, Injectable, NotFoundException } from '@nestjs/common';
 import { EventEmitter2, OnEvent } from '@nestjs/event-emitter';
-import { CACHE_KEYS, CACHE_TTL } from '../../cache/cache.constants';
-import type { FeedModel } from '../../database/generated/prisma/models';
-import { FeedType, type Prisma } from '../../database/generated/prisma/client';
-import { PrismaService } from '../../database/prisma.service';
+import { CACHE_KEYS, CACHE_TTL } from '@cache/cache.constants';
+import type { FeedModel } from '@database/generated/prisma/models';
+import { FeedType, type Prisma } from '@database/generated/prisma/client';
+import { PrismaService } from '@database/prisma.service';
 import { CreateFeedDto } from './dto/create-feed.dto';
 import { FindFeedsQueryDto } from './dto/find-feeds-query.dto';
 import { UpdateFeedDto } from './dto/update-feed.dto';

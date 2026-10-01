@@ -1,7 +1,7 @@
 import { NotFoundException } from '@nestjs/common';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { Test } from '@nestjs/testing';
-import { PrismaService } from '../../database/prisma.service';
+import { PrismaService } from '@database/prisma.service';
 import { SourcesService } from './sources.service';
 
 describe('SourcesService', () => {
@@ -34,7 +34,11 @@ describe('SourcesService', () => {
   });
 
   it('creates a source and emits source.created', async () => {
-    prisma.source.create.mockResolvedValue({ id: 'source-1', name: 'X', type: 'phishing_database' });
+    prisma.source.create.mockResolvedValue({
+      id: 'source-1',
+      name: 'X',
+      type: 'phishing_database',
+    });
 
     const result = await service.create({
       name: 'X',
@@ -59,7 +63,9 @@ describe('SourcesService', () => {
 
     await service.remove('source-1');
 
-    expect(prisma.source.delete).toHaveBeenCalledWith({ where: { id: 'source-1' } });
+    expect(prisma.source.delete).toHaveBeenCalledWith({
+      where: { id: 'source-1' },
+    });
     expect(eventEmitter.emit).toHaveBeenCalledWith(
       'source.deleted',
       expect.objectContaining({ sourceId: 'source-1' }),

@@ -1,7 +1,7 @@
 import { BadRequestException, NotFoundException } from '@nestjs/common';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { Test } from '@nestjs/testing';
-import { PrismaService } from '../../../database/prisma.service';
+import { PrismaService } from '@database/prisma.service';
 import { UsersService } from './users.service';
 
 describe('UsersService', () => {
@@ -47,7 +47,7 @@ describe('UsersService', () => {
       Promise.resolve({ id: 'user-1', ...data }),
     );
 
-    const result = await service.create(dto as any);
+    const result = await service.create(dto);
 
     expect(result).not.toHaveProperty('passwordHash');
     const createArgs = prisma.user.create.mock.calls[0][0];
@@ -61,13 +61,17 @@ describe('UsersService', () => {
 
   it('rejects creating a user with an unknown role', async () => {
     prisma.role.findUnique.mockResolvedValue(null);
-    await expect(service.create(dto as any)).rejects.toThrow(BadRequestException);
+    await expect(service.create(dto as any)).rejects.toThrow(
+      BadRequestException,
+    );
   });
 
   it('rejects creating a user with a duplicate email', async () => {
     prisma.role.findUnique.mockResolvedValue({ id: 'role-1' });
     prisma.user.findUnique.mockResolvedValue({ id: 'existing' });
-    await expect(service.create(dto as any)).rejects.toThrow(BadRequestException);
+    await expect(service.create(dto as any)).rejects.toThrow(
+      BadRequestException,
+    );
   });
 
   it('throws NotFoundException for a missing user', async () => {

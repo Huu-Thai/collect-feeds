@@ -1,10 +1,12 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { EventEmitter2 } from '@nestjs/event-emitter';
-import { PrismaService } from '../../../database/prisma.service';
+import { PrismaService } from '@database/prisma.service';
+import { UsersService } from '@modules/auth/users/users.service';
 import { CreateRoleDto } from './dto/create-role.dto';
 import { UpdateRoleDto } from './dto/update-role.dto';
 import {
   ROLE_EVENTS,
+  RoleAssignedEvent,
   RoleCreatedEvent,
   RoleDeletedEvent,
   RoleUpdatedEvent,
@@ -15,6 +17,7 @@ export class RolesService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly eventEmitter: EventEmitter2,
+    private readonly usersService: UsersService,
   ) {}
 
   async create(dto: CreateRoleDto) {
@@ -37,6 +40,14 @@ export class RolesService {
     return role;
   }
 
+  async findByKey(key: string) {
+    const role = await this.prisma.role.findUnique({ where: { key } });
+    if (!role) {
+      throw new NotFoundException(`Role with key "${key}" not found`);
+    }
+    return role;
+  }
+
   async update(id: string, dto: UpdateRoleDto) {
     await this.findOne(id);
     const role = await this.prisma.runInTransaction((tx) =>
@@ -52,5 +63,15 @@ export class RolesService {
       tx.role.delete({ where: { id } }),
     );
     this.eventEmitter.emit(ROLE_EVENTS.DELETED, new RoleDeletedEvent(id));
+  }
+
+  async assignToUser(roleId: string, userId: string) {
+    await this.findOne(roleId);
+    const user = await this.usersService.update(userId, { roleId });
+    this.eventEmitter.emit(
+      ROLE_EVENTS.ASSIGNED,
+      new RoleAssignedEvent(roleId, userId),
+    );
+    return user;
   }
 }

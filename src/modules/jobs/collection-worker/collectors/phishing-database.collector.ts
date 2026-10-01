@@ -1,9 +1,9 @@
 import { HttpService } from '@nestjs/axios';
 import { Injectable, Logger } from '@nestjs/common';
 import { firstValueFrom } from 'rxjs';
-import { FeedType } from '../../../../database/generated/prisma/enums';
-import type { SourceModel } from '../../../../database/generated/prisma/models';
-import type { RawIndicator } from '../../../feeds/feeds.service';
+import { FeedType } from '@database/generated/prisma/enums';
+import type { SourceModel } from '@database/generated/prisma/models';
+import type { RawIndicator } from '@modules/feeds/feeds.service';
 import type { Collector } from './collector.interface';
 
 interface PhishingDatabaseParams {

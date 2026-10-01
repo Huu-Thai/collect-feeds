@@ -1,7 +1,7 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { EventEmitter2 } from '@nestjs/event-emitter';
-import { JobStatus } from '../../../database/generated/prisma/enums';
-import { PrismaService } from '../../../database/prisma.service';
+import { JobStatus } from '@database/generated/prisma/enums';
+import { PrismaService } from '@database/prisma.service';
 import {
   JOB_EXECUTION_EVENTS,
   JobExecutionCompletedEvent,

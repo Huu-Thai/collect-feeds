@@ -1,6 +1,6 @@
 import { HttpModule } from '@nestjs/axios';
 import { Module } from '@nestjs/common';
-import { FeedsModule } from '../../feeds/feeds.module';
+import { FeedsModule } from '@modules/feeds/feeds.module';
 import { JobExecutionsModule } from '../job-executions/job-executions.module';
 import { CollectionQueueModule } from '../queues/collection-queue.module';
 import { CollectionWorkerProcessor } from './collection-worker.processor';

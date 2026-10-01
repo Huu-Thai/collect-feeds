@@ -1,8 +1,8 @@
 import { CACHE_MANAGER } from '@nestjs/cache-manager';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { Test } from '@nestjs/testing';
-import { FeedType } from '../../database/generated/prisma/enums';
-import { PrismaService } from '../../database/prisma.service';
+import { FeedType } from '@database/generated/prisma/enums';
+import { PrismaService } from '@database/prisma.service';
 import { FeedsService } from './feeds.service';
 
 describe('FeedsService', () => {
@@ -41,7 +41,11 @@ describe('FeedsService', () => {
 
   it('marks a new indicator as created and emits feed.created', async () => {
     prisma.feed.findUnique.mockResolvedValue(null);
-    prisma.feed.upsert.mockResolvedValue({ id: 'feed-1', value: '1.2.3.4', type: FeedType.IPV4 });
+    prisma.feed.upsert.mockResolvedValue({
+      id: 'feed-1',
+      value: '1.2.3.4',
+      type: FeedType.IPV4,
+    });
 
     const { wasCreated } = await service.upsertFromSource(
       { value: '1.2.3.4', type: FeedType.IPV4, isActive: true },
@@ -57,7 +61,11 @@ describe('FeedsService', () => {
 
   it('marks an existing indicator as updated and emits feed.updated', async () => {
     prisma.feed.findUnique.mockResolvedValue({ id: 'feed-1' });
-    prisma.feed.upsert.mockResolvedValue({ id: 'feed-1', value: '1.2.3.4', type: FeedType.IPV4 });
+    prisma.feed.upsert.mockResolvedValue({
+      id: 'feed-1',
+      value: '1.2.3.4',
+      type: FeedType.IPV4,
+    });
 
     const { wasCreated } = await service.upsertFromSource(
       { value: '1.2.3.4', type: FeedType.IPV4, isActive: false },
@@ -89,7 +97,11 @@ describe('FeedsService', () => {
     const result = await service.findByValue('1.2.3.4', FeedType.IPV4);
 
     expect(result).toEqual(feed);
-    expect(cache.set).toHaveBeenCalledWith('feed:IPV4:1.2.3.4', feed, expect.any(Number));
+    expect(cache.set).toHaveBeenCalledWith(
+      'feed:IPV4:1.2.3.4',
+      feed,
+      expect.any(Number),
+    );
   });
 
   it('invalidates the cache entry when a feed is updated or deleted', async () => {

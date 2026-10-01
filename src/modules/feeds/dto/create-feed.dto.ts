@@ -12,7 +12,7 @@ import {
   Max,
   Min,
 } from 'class-validator';
-import { FeedType } from '../../../database/generated/prisma/enums';
+import { FeedType } from '@database/generated/prisma/enums';
 
 export class CreateFeedDto {
   @ApiProperty({ example: '198.51.100.23' })

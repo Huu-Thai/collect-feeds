@@ -1,5 +1,5 @@
-import type { SourceModel } from '../../../../database/generated/prisma/models';
-import type { RawIndicator } from '../../../feeds/feeds.service';
+import type { SourceModel } from '@database/generated/prisma/models';
+import type { RawIndicator } from '@modules/feeds/feeds.service';
 
 export interface Collector {
   supports(sourceType: string): boolean;

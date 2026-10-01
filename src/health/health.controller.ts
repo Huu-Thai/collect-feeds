@@ -6,8 +6,8 @@ import {
   HealthIndicatorService,
 } from '@nestjs/terminus';
 import Redis from 'ioredis';
-import { Public } from '../common/decorators/public.decorator';
-import { PrismaService } from '../database/prisma.service';
+import { Public } from '@common/decorators/public.decorator';
+import { PrismaService } from '@database/prisma.service';
 
 @Controller('health')
 export class HealthController implements OnModuleDestroy {
@@ -22,6 +22,7 @@ export class HealthController implements OnModuleDestroy {
     this.redis = new Redis({
       host: configService.get<string>('redis.host'),
       port: configService.get<number>('redis.port'),
+      password: configService.get<string>('redis.password'),
       lazyConnect: true,
       maxRetriesPerRequest: 1,
     });

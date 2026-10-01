@@ -1,12 +1,14 @@
 import { HttpService } from '@nestjs/axios';
 import { of } from 'rxjs';
-import { FeedType } from '../../../../database/generated/prisma/enums';
+import { FeedType } from '@database/generated/prisma/enums';
 import { PhishingDatabaseCollector } from './phishing-database.collector';
 
 describe('PhishingDatabaseCollector', () => {
   it('parses newline-delimited indicators, trimming blank lines, for an ACTIVE source', async () => {
     const httpService = {
-      get: jest.fn().mockReturnValue(of({ data: '1.2.3.4\n5.6.7.8\n\n  \n9.9.9.9\n' })),
+      get: jest
+        .fn()
+        .mockReturnValue(of({ data: '1.2.3.4\n5.6.7.8\n\n  \n9.9.9.9\n' })),
     } as unknown as HttpService;
     const collector = new PhishingDatabaseCollector(httpService);
 
@@ -41,7 +43,9 @@ describe('PhishingDatabaseCollector', () => {
       },
     } as any);
 
-    expect(result).toEqual([{ value: 'bad-domain.com', type: FeedType.DOMAIN, isActive: false }]);
+    expect(result).toEqual([
+      { value: 'bad-domain.com', type: FeedType.DOMAIN, isActive: false },
+    ]);
   });
 
   it('only supports the phishing_database source type', () => {

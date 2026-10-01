@@ -10,6 +10,7 @@ import {
   Post,
 } from '@nestjs/common';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
+import { AssignPermissionsDto } from './dto/assign-permissions.dto';
 import { CreatePermissionDto } from './dto/create-permission.dto';
 import { UpdatePermissionDto } from './dto/update-permission.dto';
 import { PermissionsService } from './permissions.service';
@@ -23,6 +24,12 @@ export class PermissionsController {
   @Post()
   create(@Body() dto: CreatePermissionDto) {
     return this.permissionsService.create(dto);
+  }
+
+  @Post('assign')
+  @HttpCode(HttpStatus.OK)
+  assignToRole(@Body() dto: AssignPermissionsDto) {
+    return this.permissionsService.assignToRole(dto);
   }
 
   @Get()

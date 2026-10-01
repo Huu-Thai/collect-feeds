@@ -6,8 +6,8 @@ import {
 } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import type { Request } from 'express';
-import { API_PREFIX } from '../../../common/constants/api.constants';
-import { IS_PUBLIC_KEY } from '../../../common/decorators/public.decorator';
+import { API_PREFIX } from '@common/constants/api.constants';
+import { IS_PUBLIC_KEY } from '@common/decorators/public.decorator';
 import { PermissionsService } from '../permissions/permissions.service';
 import type { AuthenticatedUser } from '../types/authenticated-user.type';
 

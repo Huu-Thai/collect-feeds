@@ -1,8 +1,8 @@
 import { Processor, WorkerHost } from '@nestjs/bullmq';
 import { Logger } from '@nestjs/common';
 import type { Job } from 'bullmq';
-import { PrismaService } from '../../../database/prisma.service';
-import { FeedsService } from '../../feeds/feeds.service';
+import { PrismaService } from '@database/prisma.service';
+import { FeedsService } from '@modules/feeds/feeds.service';
 import type { ExecutionCounts } from '../job-executions/job-executions.service';
 import { JobExecutionsService } from '../job-executions/job-executions.service';
 import {

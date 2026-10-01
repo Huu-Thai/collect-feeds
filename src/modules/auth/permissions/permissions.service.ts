@@ -1,15 +1,17 @@
 import { CACHE_MANAGER, Cache } from '@nestjs/cache-manager';
 import { Inject, Injectable, NotFoundException } from '@nestjs/common';
 import { EventEmitter2, OnEvent } from '@nestjs/event-emitter';
-import { CACHE_KEYS, CACHE_TTL } from '../../../cache/cache.constants';
-import type { PermissionModel } from '../../../database/generated/prisma/models';
-import { PrismaService } from '../../../database/prisma.service';
+import { CACHE_KEYS, CACHE_TTL } from '@cache/cache.constants';
+import type { PermissionModel } from '@database/generated/prisma/models';
+import { PrismaService } from '@database/prisma.service';
+import { AssignPermissionsDto } from './dto/assign-permissions.dto';
 import { CreatePermissionDto } from './dto/create-permission.dto';
 import { UpdatePermissionDto } from './dto/update-permission.dto';
 import {
   PERMISSION_EVENTS,
   PermissionCreatedEvent,
   PermissionDeletedEvent,
+  PermissionsAssignedEvent,
   PermissionUpdatedEvent,
 } from './events/permission.events';
 
@@ -75,6 +77,35 @@ export class PermissionsService {
     );
   }
 
+  /** Replaces the role's entire permission set in one transaction. */
+  async assignToRole(dto: AssignPermissionsDto) {
+    const role = await this.prisma.role.findUnique({
+      where: { id: dto.roleId },
+    });
+    if (!role) {
+      throw new NotFoundException(`Role ${dto.roleId} not found`);
+    }
+
+    const permissions = await this.prisma.runInTransaction(async (tx) => {
+      await tx.permission.deleteMany({ where: { roleId: dto.roleId } });
+      if (dto.permissions.length > 0) {
+        await tx.permission.createMany({
+          data: dto.permissions.map((item) => ({
+            ...item,
+            roleId: dto.roleId,
+          })),
+        });
+      }
+      return tx.permission.findMany({ where: { roleId: dto.roleId } });
+    });
+
+    this.eventEmitter.emit(
+      PERMISSION_EVENTS.ASSIGNED,
+      new PermissionsAssignedEvent(dto.roleId),
+    );
+    return permissions;
+  }
+
   /** Used by PermissionsGuard on every request; cached to avoid a DB hit per call. */
   async findByRoleId(roleId: string) {
     const cacheKey = CACHE_KEYS.permissionsByRole(roleId);
@@ -93,10 +124,14 @@ export class PermissionsService {
     PERMISSION_EVENTS.CREATED,
     PERMISSION_EVENTS.UPDATED,
     PERMISSION_EVENTS.DELETED,
+    PERMISSION_EVENTS.ASSIGNED,
   ])
   async invalidateRoleCache(
     event:
-      PermissionCreatedEvent | PermissionUpdatedEvent | PermissionDeletedEvent,
+      | PermissionCreatedEvent
+      | PermissionUpdatedEvent
+      | PermissionDeletedEvent
+      | PermissionsAssignedEvent,
   ) {
     await this.cache.del(CACHE_KEYS.permissionsByRole(event.roleId));
   }

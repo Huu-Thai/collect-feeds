@@ -1,8 +1,8 @@
 import { NotFoundException } from '@nestjs/common';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { Test } from '@nestjs/testing';
-import { JobStatus } from '../../../database/generated/prisma/enums';
-import { PrismaService } from '../../../database/prisma.service';
+import { JobStatus } from '@database/generated/prisma/enums';
+import { PrismaService } from '@database/prisma.service';
 import { JobExecutionsService } from './job-executions.service';
 
 describe('JobExecutionsService', () => {
@@ -40,9 +40,18 @@ describe('JobExecutionsService', () => {
   });
 
   it('markSuccess updates status, records counts, and bumps the job lastRunAt', async () => {
-    prisma.jobExecution.update.mockResolvedValue({ id: 'exec-1', jobId: 'job-1', status: JobStatus.SUCCESS });
+    prisma.jobExecution.update.mockResolvedValue({
+      id: 'exec-1',
+      jobId: 'job-1',
+      status: JobStatus.SUCCESS,
+    });
 
-    const counts = { recordsProcessed: 10, recordsCreated: 4, recordsUpdated: 6, recordsFailed: 0 };
+    const counts = {
+      recordsProcessed: 10,
+      recordsCreated: 4,
+      recordsUpdated: 6,
+      recordsFailed: 0,
+    };
     await service.markSuccess('exec-1', counts);
 
     expect(prisma.jobExecution.update).toHaveBeenCalledWith(
@@ -61,14 +70,27 @@ describe('JobExecutionsService', () => {
   });
 
   it('markFailed updates status with the error message and emits job_execution.failed', async () => {
-    prisma.jobExecution.update.mockResolvedValue({ id: 'exec-1', jobId: 'job-1', status: JobStatus.FAILED });
+    prisma.jobExecution.update.mockResolvedValue({
+      id: 'exec-1',
+      jobId: 'job-1',
+      status: JobStatus.FAILED,
+    });
 
-    const counts = { recordsProcessed: 2, recordsCreated: 0, recordsUpdated: 0, recordsFailed: 2 };
+    const counts = {
+      recordsProcessed: 2,
+      recordsCreated: 0,
+      recordsUpdated: 0,
+      recordsFailed: 2,
+    };
     await service.markFailed('exec-1', counts, 'boom');
 
     expect(prisma.jobExecution.update).toHaveBeenCalledWith(
       expect.objectContaining({
-        data: expect.objectContaining({ status: JobStatus.FAILED, errorMessage: 'boom', ...counts }),
+        data: expect.objectContaining({
+          status: JobStatus.FAILED,
+          errorMessage: 'boom',
+          ...counts,
+        }),
       }),
     );
     expect(eventEmitter.emit).toHaveBeenCalledWith(

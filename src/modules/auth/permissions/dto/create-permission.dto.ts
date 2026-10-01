@@ -1,8 +1,15 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { IsIn, IsString, IsUUID, Matches } from 'class-validator';
 
-const PERMISSION_KEYS = ['read', 'write', '*'] as const;
-const HTTP_METHODS = ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', '*'] as const;
+export const PERMISSION_KEYS = ['read', 'write', '*'] as const;
+export const HTTP_METHODS = [
+  'GET',
+  'POST',
+  'PUT',
+  'PATCH',
+  'DELETE',
+  '*',
+] as const;
 
 export class CreatePermissionDto {
   @ApiProperty({ enum: PERMISSION_KEYS })

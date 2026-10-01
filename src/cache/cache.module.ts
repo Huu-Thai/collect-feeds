@@ -9,9 +9,15 @@ import { createKeyv } from '@keyv/redis';
       isGlobal: true,
       useFactory: (configService: ConfigService) => ({
         stores: [
-          createKeyv(
-            `redis://${configService.get<string>('redis.host')}:${configService.get<number>('redis.port')}/1`,
-          ),
+          createKeyv({
+            socket: {
+              host: configService.get<string>('redis.host'),
+              port: configService.get<number>('redis.port'),
+            },
+            password: configService.get<string>('redis.password'),
+            // Separate logical DB from BullMQ's (db 0), so cache flushes never touch queue state.
+            database: 1,
+          }),
         ],
         ttl: 60_000,
       }),

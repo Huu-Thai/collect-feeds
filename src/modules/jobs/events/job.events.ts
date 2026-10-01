@@ -1,4 +1,4 @@
-import { BaseEvent } from '../../../common/events/base.event';
+import { BaseEvent } from '@common/events/base.event';
 
 export const JOB_EVENTS = {
   CREATED: 'job.created',

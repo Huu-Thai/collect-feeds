@@ -39,7 +39,9 @@ describe('PermissionsGuard', () => {
   });
 
   it('allows a wildcard permission for any method and path', async () => {
-    permissionsService.findByRoleId.mockResolvedValue([{ key: '*', method: '*', path: '*' }]);
+    permissionsService.findByRoleId.mockResolvedValue([
+      { key: '*', method: '*', path: '*' },
+    ]);
     const context = createContext({
       method: 'DELETE',
       path: '/api/v1/feeds/123',
@@ -72,7 +74,9 @@ describe('PermissionsGuard', () => {
       user: { roleId: 'role-1' },
     });
 
-    await expect(guard.canActivate(context)).rejects.toThrow(ForbiddenException);
+    await expect(guard.canActivate(context)).rejects.toThrow(
+      ForbiddenException,
+    );
   });
 
   it('rejects a read-key permission on a write request even with a matching path', async () => {
@@ -85,6 +89,8 @@ describe('PermissionsGuard', () => {
       user: { roleId: 'role-1' },
     });
 
-    await expect(guard.canActivate(context)).rejects.toThrow(ForbiddenException);
+    await expect(guard.canActivate(context)).rejects.toThrow(
+      ForbiddenException,
+    );
   });
 });

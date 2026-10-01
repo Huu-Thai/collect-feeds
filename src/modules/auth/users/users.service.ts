@@ -5,8 +5,8 @@ import {
 } from '@nestjs/common';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import * as bcrypt from 'bcrypt';
-import type { UserModel } from '../../../database/generated/prisma/models';
-import { PrismaService } from '../../../database/prisma.service';
+import type { UserModel } from '@database/generated/prisma/models';
+import { PrismaService } from '@database/prisma.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import {
@@ -16,7 +16,7 @@ import {
   UserUpdatedEvent,
 } from './events/user.events';
 
-const SALT_ROUNDS = 10;
+export const SALT_ROUNDS = 10;
 
 @Injectable()
 export class UsersService {
@@ -57,7 +57,10 @@ export class UsersService {
         },
       }),
     );
-    this.eventEmitter.emit(USER_EVENTS.CREATED, new UserCreatedEvent(user.id));
+    this.eventEmitter.emit(
+      USER_EVENTS.CREATED,
+      new UserCreatedEvent(user.id, user.email, user.firstname ?? undefined),
+    );
     return this.toSafeUser(user);
   }
 
@@ -114,7 +117,10 @@ export class UsersService {
         },
       }),
     );
-    this.eventEmitter.emit(USER_EVENTS.UPDATED, new UserUpdatedEvent(user.id));
+    this.eventEmitter.emit(
+      USER_EVENTS.UPDATED,
+      new UserUpdatedEvent(user.id, user.email, user.firstname ?? undefined),
+    );
     return this.toSafeUser(user);
   }
 

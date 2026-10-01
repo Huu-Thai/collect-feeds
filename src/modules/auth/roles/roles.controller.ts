@@ -45,4 +45,10 @@ export class RolesController {
   remove(@Param('id') id: string) {
     return this.rolesService.remove(id);
   }
+
+  @Post(':id/assign/:userId')
+  @HttpCode(HttpStatus.OK)
+  assignToUser(@Param('id') id: string, @Param('userId') userId: string) {
+    return this.rolesService.assignToUser(id, userId);
+  }
 }

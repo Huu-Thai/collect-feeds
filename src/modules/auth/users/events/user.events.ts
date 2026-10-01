@@ -1,4 +1,4 @@
-import { BaseEvent } from '../../../../common/events/base.event';
+import { BaseEvent } from '@common/events/base.event';
 
 export const USER_EVENTS = {
   CREATED: 'user.created',
@@ -7,13 +7,21 @@ export const USER_EVENTS = {
 } as const;
 
 export class UserCreatedEvent extends BaseEvent {
-  constructor(public readonly userId: string) {
+  constructor(
+    public readonly userId: string,
+    public readonly email: string,
+    public readonly firstname?: string,
+  ) {
     super();
   }
 }
 
 export class UserUpdatedEvent extends BaseEvent {
-  constructor(public readonly userId: string) {
+  constructor(
+    public readonly userId: string,
+    public readonly email: string,
+    public readonly firstname?: string,
+  ) {
     super();
   }
 }
