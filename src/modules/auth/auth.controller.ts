@@ -1,14 +1,17 @@
 import {
   Body,
   Controller,
+  Get,
   HttpCode,
   HttpStatus,
   Patch,
   Post,
 } from '@nestjs/common';
-import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { CurrentUser } from '@common/decorators/current-user.decorator';
 import { Public } from '@common/decorators/public.decorator';
+import { SelfService } from '@common/decorators/self-service.decorator';
+import { MeService } from './me.service';
 import { AuthService } from './auth.service';
 import { ForgotPasswordDto } from './dto/forgot-password.dto';
 import { LoginDto } from './dto/login.dto';
@@ -20,7 +23,10 @@ import type { AuthenticatedUser } from './types/authenticated-user.type';
 @ApiTags('auth')
 @Controller('auth')
 export class AuthController {
-  constructor(private readonly authService: AuthService) {}
+  constructor(
+    private readonly authService: AuthService,
+    private readonly meService: MeService,
+  ) {}
 
   @Public()
   @Post('login')
@@ -33,6 +39,18 @@ export class AuthController {
   @Post('register')
   register(@Body() dto: RegisterDto) {
     return this.authService.register(dto);
+  }
+
+  @ApiBearerAuth()
+  @SelfService()
+  @Get('me')
+  @ApiOperation({
+    summary: "The caller's profile, role and permissions",
+    description:
+      'Lets other services authorise a user token in one call. Needs no role permission.',
+  })
+  me(@CurrentUser() user: AuthenticatedUser) {
+    return this.meService.me(user.id);
   }
 
   @ApiBearerAuth()

@@ -33,6 +33,30 @@ describe('PermissionsGuard', () => {
     expect(permissionsService.findByRoleId).not.toHaveBeenCalled();
   });
 
+  it('lets any authenticated user through @SelfService routes without a permission lookup', async () => {
+    reflector.getAllAndOverride.mockImplementation(
+      (key: string) => key === 'isSelfService',
+    );
+    const context = createContext({
+      method: 'GET',
+      path: '/api/v1/auth/me',
+      user: { id: 'u1', roleId: 'viewer-role' },
+    });
+    await expect(guard.canActivate(context)).resolves.toBe(true);
+    expect(permissionsService.findByRoleId).not.toHaveBeenCalled();
+  });
+
+  it('still denies @SelfService routes without an authenticated user', async () => {
+    reflector.getAllAndOverride.mockImplementation(
+      (key: string) => key === 'isSelfService',
+    );
+    await expect(
+      guard.canActivate(
+        createContext({ method: 'GET', path: '/api/v1/auth/me' }),
+      ),
+    ).resolves.toBe(false);
+  });
+
   it('denies the request when there is no authenticated user', async () => {
     const context = createContext({ method: 'GET', path: '/api/v1/feeds' });
     await expect(guard.canActivate(context)).resolves.toBe(false);

@@ -8,6 +8,7 @@ import { Reflector } from '@nestjs/core';
 import type { Request } from 'express';
 import { API_PREFIX } from '@common/constants/api.constants';
 import { IS_PUBLIC_KEY } from '@common/decorators/public.decorator';
+import { IS_SELF_SERVICE_KEY } from '@common/decorators/self-service.decorator';
 import { PermissionsService } from '../permissions/permissions.service';
 import type { AuthenticatedUser } from '../types/authenticated-user.type';
 
@@ -38,6 +39,15 @@ export class PermissionsGuard implements CanActivate {
     const user = request.user;
     if (!user) {
       return false;
+    }
+    // Authenticated is enough for self-service routes (the caller's own data only).
+    if (
+      this.reflector.getAllAndOverride<boolean>(IS_SELF_SERVICE_KEY, [
+        context.getHandler(),
+        context.getClass(),
+      ])
+    ) {
+      return true;
     }
 
     const permissions = await this.permissionsService.findByRoleId(user.roleId);
